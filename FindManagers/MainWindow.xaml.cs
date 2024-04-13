@@ -27,7 +27,7 @@ namespace FindManagers
         EmployeeClass TheEmployeeClass = new EmployeeClass();
         EventLogClass TheEventLogClass = new EventLogClass();
 
-        FindActiveEmployeesDataSet TheFindActiveEmployeeDataSet = new FindActiveEmployeesDataSet();
+        FindAllActiveEmployeeInformationDataSet TheFindAllActiveEmployeeInformationDateSet = new FindAllActiveEmployeeInformationDataSet();
         FindEmployeeByEmployeeIDDataSet TheFindEmployeeByEmployeeIDDataSet = new FindEmployeeByEmployeeIDDataSet();
         BlueJayManagersDataSet TheBlueJayManagerDataSet = new BlueJayManagersDataSet();
         FindEmployeeIsAManagerDataSet TheFindEmployeeIsAManagerDataSet = new FindEmployeeIsAManagerDataSet();
@@ -48,7 +48,7 @@ namespace FindManagers
         {
             TheBlueJayManagerDataSet.bluejaymanagers.Rows.Clear();
 
-            TheFindActiveEmployeeDataSet = TheEmployeeClass.FindActiveEmployees();
+            TheFindAllActiveEmployeeInformationDateSet = TheEmployeeClass.FindAllActiveEmployeeInformation();
 
             dgrManagers.ItemsSource = TheBlueJayManagerDataSet.bluejaymanagers;
         }
@@ -69,13 +69,14 @@ namespace FindManagers
             string strEmailAddress;
             string strDepartment;
             bool blnItemFound = false;
+            string strEmployeeGroup = "";
 
             try
             {
                 TheBlueJayManagerDataSet.bluejaymanagers.Rows.Clear();
                 gintCounter = 0;
 
-                intNumberOfRecords = TheFindActiveEmployeeDataSet.FindActiveEmployees.Rows.Count;
+                intNumberOfRecords = TheFindAllActiveEmployeeInformationDateSet.FindAllActiveEmployeeInformation.Rows.Count;
 
                 if(intNumberOfRecords < 1)
                 {
@@ -88,7 +89,16 @@ namespace FindManagers
                 {
                     blnItemFound = false;
 
-                    intManagerID = TheFindActiveEmployeeDataSet.FindActiveEmployees[intCounter].ManagerID;
+                    intManagerID = TheFindAllActiveEmployeeInformationDateSet.FindAllActiveEmployeeInformation[intCounter].ManagerID;
+                    strEmployeeGroup = TheFindAllActiveEmployeeInformationDateSet.FindAllActiveEmployeeInformation[intCounter].EmployeeGroup;
+
+                    if(strEmployeeGroup == "MANAGERS")
+                    {
+                        intManagerID = TheFindAllActiveEmployeeInformationDateSet.FindAllActiveEmployeeInformation[intCounter].ManagerID;
+                    }
+
+                    
+                    
                     
                     if(gintCounter > 0)
                     {
@@ -105,21 +115,26 @@ namespace FindManagers
                     {
                         TheFindEmployeeByEmployeeIDDataSet = TheEmployeeClass.FindEmployeeByEmployeeID(intManagerID);
 
-                        strFirstName = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].FirstName;
-                        strLastName = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID [0].LastName;
-                        strEmailAddress = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].EmailAddress;
-                        strDepartment = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].Department;
+                        if(TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].Active == true)
+                        {
+                            strFirstName = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].FirstName;
+                            strLastName = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].LastName;
+                            strEmailAddress = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].EmailAddress;
+                            strDepartment = TheFindEmployeeByEmployeeIDDataSet.FindEmployeeByEmployeeID[0].Department;
 
-                        BlueJayManagersDataSet.bluejaymanagersRow NewManagerRow = TheBlueJayManagerDataSet.bluejaymanagers.NewbluejaymanagersRow();
+                            BlueJayManagersDataSet.bluejaymanagersRow NewManagerRow = TheBlueJayManagerDataSet.bluejaymanagers.NewbluejaymanagersRow();
 
-                        NewManagerRow.Department = strDepartment;
-                        NewManagerRow.EmailAddress = strEmailAddress;
-                        NewManagerRow.EmployeeID = intManagerID;
-                        NewManagerRow.FirstName = strFirstName;
-                        NewManagerRow.LastName = strLastName;
+                            NewManagerRow.Department = strDepartment;
+                            NewManagerRow.EmailAddress = strEmailAddress;
+                            NewManagerRow.EmployeeID = intManagerID;
+                            NewManagerRow.FirstName = strFirstName;
+                            NewManagerRow.LastName = strLastName;
+
+                            TheBlueJayManagerDataSet.bluejaymanagers.Rows.Add(NewManagerRow);
+                            gintCounter++;
+                        }
+
                         
-                        TheBlueJayManagerDataSet.bluejaymanagers.Rows.Add(NewManagerRow);
-                        gintCounter++;
                     }
                 }
 
